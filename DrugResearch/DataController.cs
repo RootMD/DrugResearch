@@ -8,9 +8,9 @@ using Accord.IO;
 
 namespace DrugResearch
 {
-    public class DataController
+    public static class DataController
     {
-        public string[][] Load(string pathName)
+        public static string[][] Load(string pathName)
         {
 
             List<string[]> output = new List<string[]>();
@@ -26,6 +26,8 @@ namespace DrugResearch
                     while ((line = sr.ReadLine()) != null)
                     {
                         string[] chLine = line.Split(',');
+                        chLine = chLine.Skip(1).ToArray();
+                        output.Add(chLine);
 
                     }
                 }
