@@ -66,31 +66,12 @@ namespace DrugResearch
                 new DecisionVariable("Country", 7),  // 7 possible values
                 new DecisionVariable("Eticnity", 7), // 7 possible values
                 new DecisionVariable("Nscore", 49), // 17 possible values 
-                new DecisionVariable("Escore", 42), // 14 possible values (High, normal)    
-                new DecisionVariable("Oscore", 35),  // 12 possible values (Weak, strong) 
-                new DecisionVariable("Ascore", 41), // 14 possible values (Sunny, overcast, rain)
-                new DecisionVariable("Cscore", 41), // 14 possible values (Hot, mild, cool)  
-                new DecisionVariable("Impulsive", 10), // 10 possible values (High, normal)    
-                new DecisionVariable("SS", 11),  // 11 possible values (Weak, strong) 
-                //new DecisionVariable("Alcohol", 7), // 7 possible values (Sunny, overcast, rain)
-                //new DecisionVariable("Amfet", 7), // 7 possible values (Hot, mild, cool)  
-                //new DecisionVariable("Amyl",    7), // 7 possible values (High, normal)    
-                //new DecisionVariable("Benzos",        7),  // 7 possible values (Weak, strong) 
-                //new DecisionVariable("Cofeine", 7), // 7 possible values (Sunny, overcast, rain)
-                //new DecisionVariable("Cannabis", 7), // 7 possible values (Hot, mild, cool)  
-                //new DecisionVariable("Chocolate",    7), // 7 possible values (High, normal)    
-                //new DecisionVariable("Coke",        7),  // 7 possible values (Weak, strong) 
-                //new DecisionVariable("Crac", 7), // 7 possible values (Hot, mild, cool)  
-                //new DecisionVariable("Ecstasy",    7), // 7 possible values (High, normal)    
-                //new DecisionVariable("Heroine",        7),  // 7 possible values (Weak, strong) 
-                //new DecisionVariable("Ketamine", 7), // 7 possible values (Sunny, overcast, rain)
-                //new DecisionVariable("LegalH", 7), // 7 possible values (Hot, mild, cool)  
-                //new DecisionVariable("LSD",    7), // 7 possible values (High, normal)    
-                //new DecisionVariable("Meth",        7),  // 7 possible values (Weak, strong) 
-                //new DecisionVariable("Mushrooms", 7), // 7 possible values (Sunny, overcast, rain)
-                //new DecisionVariable("Nicotine", 7), // 7 possible values (Hot, mild, cool)  
-                //new DecisionVariable("Semeron",    7), // 7 possible values (High, normal)    
-                //new DecisionVariable("VSA",        7),  // 7 possible values (Weak, strong) 
+                new DecisionVariable("Escore", 42), // 14 possible values
+                new DecisionVariable("Oscore", 35),  // 12 possible values
+                new DecisionVariable("Ascore", 41), // 14 possible values 
+                new DecisionVariable("Cscore", 41), // 14 possible values 
+                new DecisionVariable("Impulsive", 10), // 10 possible values   
+                new DecisionVariable("SS", 11),  // 11 possible values 
             };
 
             return attributes;

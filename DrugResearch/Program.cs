@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Accord.Controls;
-
+using Accord.MachineLearning.DecisionTrees.Rules;
 
 namespace DrugResearch
 {
@@ -21,34 +21,49 @@ namespace DrugResearch
     {
         static void Main(string[] args)
         {
+            int Quitting = 0;
+            while(Quitting == 0)
+            {
+                Console.WriteLine("Menu : wybór metody uczenia");
+                Console.WriteLine("1.Drzewa Decyzyjne");
+                Console.WriteLine("2.Sieci neuronowe");
+                Console.WriteLine("3.Porównanie metod");
+                Console.WriteLine("4.Zamknij");
+                string name = Console.ReadLine();
+                Console.Clear();
+                switch (name)
+                { 
+                    
+                    case "1":
+                        Decision_Tree(true);
+                        Console.Clear();
+                        break;
+                    case "2":
 
-        //DataTable data = DataController.MakeData("../../drug_consumption_50.txt");
-        //DataTable entireData = DataController.MakeData("../../drug_consumption.txt");
-        //Codification codebook = new Codification(entireData);
-        //DataTable symbols = codebook.Apply(data);
-        //int[][] inputs = symbols.ToJagged<int>("Age", "Gender", "Education", "Country", "Eticnity", "Nscore", "Escore", "Oscore", "Ascore", "Cscore", "Impulsive", "SS");
-        //int[] outputs = symbols.ToArray<int>("Cofeine");
+                        
+                        break;
+                    case "3":
+                        double TreesError = Decision_Tree(false);
 
-        //var id3learning = new ID3Learning()
-        //{
+                        break;
+                    case "4":
+                        Quitting = 1;
+                        break;
+                    default:
+                        
+                        Console.WriteLine("Wybierz od 1-4");
+                        Console.WriteLine();
+                        break;
+                }
+            }
+            
+        }
 
-        //    new DecisionVariable("Age", 6), // 6 possible values
-        //    new DecisionVariable("Gender", 2), // 2 possible values 
-        //    new DecisionVariable("Education", 9), // 9 possible values  
-        //    new DecisionVariable("Country", 7),  // 7 possible values
-        //    new DecisionVariable("Eticnity", 7), // 7 possible values
-        //    new DecisionVariable("Nscore", 49), // 17 possible values 
-        //    new DecisionVariable("Escore", 42), // 14 possible values (High, normal)    
-        //    new DecisionVariable("Oscore", 35),  // 12 possible values (Weak, strong) 
-        //    new DecisionVariable("Ascore", 41), // 14 possible values (Sunny, overcast, rain)
-        //    new DecisionVariable("Cscore", 41), // 14 possible values (Hot, mild, cool)  
-        //    new DecisionVariable("Impulsive", 10), // 10 possible values (High, normal)    
-        //    new DecisionVariable("SS", 11),  // 11 possible values (Weak, strong) 
-        //};
-        //DecisionTree tree = id3learning.Learn(inputs, outputs);
-
-        DataTable data = DataController.MakeData("../../drug_consumption.txt");
+        static double Decision_Tree(bool show)
+        {
+            DataTable data = DataController.MakeData("../../drug_consumption_20.txt");
             DataTable entireData = DataController.MakeData("../../drug_consumption.txt");
+            DataTable tests = DataController.MakeData("../../drug_consumption_test.txt");
             Codification codebook = new Codification(entireData);
             DecisionVariable[] attributes = DataController.GetAttributes();
             int classCount = 7; // (7) "Never Used", "Used over a Decade Ago", "Used in Last Decade", "Used in Last Year", "Used in Last Month", "Used in Last Week", and "Used in Last Day"
@@ -57,27 +72,26 @@ namespace DrugResearch
             ID3Learning id3learning = new ID3Learning(tree);
 
             DataTable symbols = codebook.Apply(data);
-
+            string LookingFor = "Cannabis";
             int[][] inputs = symbols.ToJagged<int>("Age", "Gender", "Education", "Country", "Eticnity", "Nscore", "Escore", "Oscore", "Ascore", "Cscore", "Impulsive", "SS");
-            int[] outputs = symbols.ToArray<int>("Cofeine");
-
-            //int[][] inputs = symbols.ToIntArray("Age", "Gender", "Education", "Country", "Eticnity", "Nscore", "Escore", "Oscore", "Ascore", "Cscore", "Impulsive", "SS");
-            //int[] outputs = symbols.ToIntArray("Alcohol").GetColumn(0);
+            int[] outputs = symbols.ToArray<int>(LookingFor);
 
             id3learning.Learn(inputs, outputs);
-
-            int[] query1 = codebook.Transform("-0.07854", "0.48246", "1.98437", "-0.09765", "-0.31685", "0.13606", "-0.43999", "-1.55521", "-0.01729", "0.93949", "-1.37983", "-1.54858");
-            int predicted = tree.Decide(query1);
-            string answer = codebook.Revert("Coke", predicted);
-            Console.WriteLine(answer);
-            double error = new ZeroOneLoss(query1).Loss(tree.Decide(inputs));
-
-            DecisionTreeView NewTree = new DecisionTreeView();
-            NewTree.TreeSource = tree;
-
-
-            Console.WriteLine(error);
-            Console.ReadKey();
+            DataTable testSymbols = codebook.Apply(tests);
+            int[][] testIn = testSymbols.ToJagged<int>("Age", "Gender", "Education", "Country", "Eticnity", "Nscore", "Escore", "Oscore", "Ascore", "Cscore", "Impulsive", "SS");
+            int[] testOut = testSymbols.ToArray<int>(LookingFor);
+            DecisionSet rules = tree.ToRules();
+            string ruleText = rules.ToString(codebook, LookingFor, System.Globalization.CultureInfo.InvariantCulture);
+            double error = new ZeroOneLoss(testOut).Loss(tree.Decide(testIn));
+            if (show == true)
+            {
+                Console.WriteLine(ruleText);
+                Console.ReadKey();
+                Console.WriteLine(error);
+                Console.ReadKey();
+            }
+            return error;
         }
+
     }
 }
