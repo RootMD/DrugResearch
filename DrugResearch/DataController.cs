@@ -38,7 +38,59 @@ namespace DrugResearch
                 return output.ToArray();
         }
 
-        public static DataTable MakeData(string pathName)
+        public static double[][] convertDT(double[][] StringTable)
+        {
+            List<double[]> output = new List<double[]>();
+            List<double> One = new List<double>();
+            for(int i=0; StringTable.GetLength(0)>i; i++)
+            {
+                for (int j = 0; j < 7; j++){
+                    
+                    if (j == StringTable[i][0])
+                    {
+                        One.Add(1);
+                    }
+                    else
+                    {
+                        One.Add(0);
+                    }
+                }
+                output.Add(One.ToArray());
+                One = new List<double>();
+            }
+            
+
+            return output.ToArray();
+        }
+
+        public static string[][] MakeString(string pathName, out string[][] outputs)
+        {
+            string[][] start = Load(pathName);
+            List<string[]> input = new List<string[]>();
+            List<string[]> output = new List<string[]>();
+            List<string> attr = new List<string>();
+            List<string> allOutputs = new List<string>();
+            for(int i=0; start.GetLength(0)>i; i++)
+            {
+                for (int j=0; j<start[i].GetLength(0);j++)
+                {
+                    if (j <= 11)
+                        attr.Add(start[i][j]);
+                    else
+                        allOutputs.Add(start[i][j]);
+                }
+                input.Add(attr.ToArray());
+                output.Add(allOutputs.ToArray());
+                attr = new List<string>();
+                allOutputs = new List<string>();
+            }
+            
+            
+            outputs = output.ToArray();
+            return input.ToArray();
+        }
+
+        public static DataTable MakeDataTable(string pathName)
         {
             string[][] DataInput = Load(pathName);
 
@@ -49,6 +101,28 @@ namespace DrugResearch
                 "Ketamine", "LegalH", "LSD", "Meth", "Mushrooms", "Nicotine", "Semeron", "VSA");
 
             foreach (string[] DataRow in DataInput)
+            {
+                data.Rows.Add(DataRow);
+            }
+
+            return data;
+        }
+
+        public static DataTable MakeDataFromString(string[][] Input, string inp)
+        {
+            DataTable data = new DataTable("The Five Factor Model of personality and evaluation of drug consumption risk");
+            if(inp.Equals("input"))
+            {
+                data.Columns.Add("Age", "Gender", "Education", "Country", "Eticnity", "Nscore", "Escore", "Oscore", "Ascore", "Cscore", "Impulsive",
+                "SS");
+            }
+            else
+            {
+                data.Columns.Add("Alcohol", "Amfet", "Amyl", "Benzos", "Cofeine", "Cannabis", "Chocolate", "Coke", "Crac", "Ecstasy", "Heroine",
+                "Ketamine", "LegalH", "LSD", "Meth", "Mushrooms", "Nicotine", "Semeron", "VSA");
+            }
+            
+            foreach (string[] DataRow in Input)
             {
                 data.Rows.Add(DataRow);
             }
