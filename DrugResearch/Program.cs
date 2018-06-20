@@ -74,16 +74,16 @@ namespace DrugResearch
         {
             DataTable data = DataController.MakeDataTable("../../drug_consumption.txt");
             DataTable entireData = DataController.MakeDataTable("../../drug_consumption.txt");
-            DataTable tests = DataController.MakeDataTable("../../drug_consumption.txt");
+            DataTable tests = DataController.MakeDataTable("../../drug_consumption_test2.txt");
             Codification codebook = new Codification(entireData);
             DecisionVariable[] attributes = DataController.GetAttributes();
             int classCount = 7; // (7) "Never Used", "Used over a Decade Ago", "Used in Last Decade", "Used in Last Year", "Used in Last Month", "Used in Last Week", and "Used in Last Day"
 
             DecisionTree tree = new DecisionTree(attributes, classCount);
             ID3Learning id3learning = new ID3Learning(tree);
-
+            id3learning.MaxHeight = 7;
             DataTable symbols = codebook.Apply(data);
-            string LookingFor = "Crac";
+            string LookingFor = "Cannabis";
             int[][] inputs = symbols.ToJagged<int>("Age", "Gender", "Education", "Country", "Eticnity", "Nscore", "Escore", "Oscore", "Ascore", "Cscore", "Impulsive", "SS");
             int[] outputs = symbols.ToArray<int>(LookingFor);
 
@@ -96,6 +96,8 @@ namespace DrugResearch
             double error = new ZeroOneLoss(testOut).Loss(tree.Decide(testIn));
             if (show == true)
             {
+                Console.WriteLine(LookingFor);
+                Console.WriteLine();
                 Console.WriteLine(ruleText);
                 Console.ReadKey();
                 Console.WriteLine("Blad - " + Math.Round(error,4) +"%");
@@ -109,14 +111,14 @@ namespace DrugResearch
             double error = new double();
             DataTable entireData = DataController.MakeDataTable("../../drug_consumption.txt");
             Codification codebook = new Codification(entireData);
-            //"Alcohol", "Amfet", !!"Amyl", "Benzos", "Cofeine", "Cannabis", "Chocolate", "Coke", !!!!"Crac", ///"Ecstasy", !!"Heroine",
+            //"Alcohol", "Amfet", !!"Amyl", "Benzos", "Cofeine", "Cannabis", "Chocolate", "Coke", (1)"Crac", ///"Ecstasy", !!"Heroine",
             //    !!"Ketamine", //"LegalH", "LSD", !!"Meth", //"Mushrooms", "Nicotine", lol "Semeron", "VSA"
-            string LookingFor = "Crac";
+            string LookingFor = "Heroine";
             int good = 0;
             string[][] outputs;
-            string[][] inputs = DataController.MakeString("../../drug_consumption.txt", out outputs);
+            string[][] inputs = DataController.MakeString("../../drug_consumption_500.txt", out outputs);
             string[][] testOutputs;
-            string[][] testInputs = DataController.MakeString("../../drug_consumption.txt", out testOutputs);
+            string[][] testInputs = DataController.MakeString("../../drug_consumption_500.txt", out testOutputs);
 
             DataTable outputs1 = DataController.MakeDataFromString(outputs,"output");
             DataTable inputs1 = DataController.MakeDataFromString(inputs,"input");
@@ -134,16 +136,16 @@ namespace DrugResearch
             double[][] outputsT = TOsymbols.ToJagged<double>(LookingFor);
             outputsT = DataController.convertDT(outputsT);
 
-            DeepBeliefNetwork network = new DeepBeliefNetwork(inputs.First().Length, 15, 7);
+            DeepBeliefNetwork network = new DeepBeliefNetwork(inputs.First().Length, 10, 7);
             new GaussianWeights(network, 0.1).Randomize();
             network.UpdateVisibleWeights();
             DeepBeliefNetworkLearning FirstLearner = new DeepBeliefNetworkLearning(network)
             {
                 Algorithm = (h, v, i) => new ContrastiveDivergenceLearning(h, v)
                 {
-                    LearningRate = 0.2,
+                    LearningRate = 0.1,
                     Momentum = 0.5,
-                    Decay = 0.01,
+                    Decay = 0.001,
                 }
             };
             
@@ -159,18 +161,33 @@ namespace DrugResearch
                 for (int i = 0; i < 500; i++)
                 {
                     error = FirstLearner.RunEpoch(layerData) / inputsD.Length;
+                    if(i % 10 == 0 && show == true)
+                    Console.WriteLine("Error value(" + LookingFor + ", test: " + i + ") = " + error);
                 }
             }
 
             var SecondLearner = new BackPropagationLearning(network)
             {
                 LearningRate = 0.15,
-                Momentum = 0.5
+                Momentum = 0.7
             };
+            EvolutionaryLearning teacher = new EvolutionaryLearning(network,100);
+            for (int i = 0; i < 800; i++)
+            {
+                error = teacher.RunEpoch(inputsD, outputsD) / inputsD.Length;
+                if (i % 50 == 0 && show == true)
+                {
+                    Console.WriteLine("Error value(" + LookingFor + ", test: " + i + ") = " + error);
+                }
+            }
 
             for (int i = 0; i < 800; i++)
             {
                 error = SecondLearner.RunEpoch(inputsD, outputsD) / inputsD.Length;
+                if (i % 10 == 0 && show == true)
+                {
+                    Console.WriteLine("Error value(" + LookingFor + ", test: " + i + ") = " + error);
+                }
             }
             
             for (int i = 0; i < inputsD.Length; i++)
